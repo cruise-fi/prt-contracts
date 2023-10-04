@@ -2,5 +2,5 @@
 pragma solidity ^0.8.13;
 
 interface IOracle {
-    function price(uint256 timestamp) external returns (uint256);
+    function price(uint80 roundId) external returns (uint256);
 }
