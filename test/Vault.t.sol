@@ -53,6 +53,7 @@ contract VaultTest is BaseTest {
         vault = new Vault("ETH @ 1700",
                           "1700",
                           1700_00000000,
+                          0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84,
                           address(oracle));
 
         assertEq(0, vault.cumulativeYield());

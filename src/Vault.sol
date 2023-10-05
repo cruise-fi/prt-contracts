@@ -16,7 +16,8 @@ contract Vault {
 
     uint256 public constant PRECISION_FACTOR = 1 ether;
 
-    IStEth public constant stEth = IStEth(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84);
+    /* IStEth public constant stEth = IStEth(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84); */
+    IStEth public immutable stEth;
     YToken public immutable yToken;
     HodlToken public immutable hodlToken;
 
@@ -31,6 +32,7 @@ contract Vault {
     constructor(string memory name_,
                 string memory symbol_,
                 uint256 strike_,
+                address stEth_,
                 address oracle_) {
 
         // Strike price with 8 decimals
@@ -44,6 +46,7 @@ contract Vault {
                                   string.concat("hodl", symbol_),
                                   string.concat("Hodl ", name_));
 
+        stEth = IStEth(stEth_);
         oracle = IOracle(oracle_);
 
         deployedAt = block.timestamp;
@@ -66,9 +69,15 @@ contract Vault {
     }
 
     function redeem(uint256 amount) external {
+        require(IERC20(address(yToken)).balanceOf(msg.sender) >= amount);
+        require(IERC20(address(hodlToken)).balanceOf(msg.sender) >= amount);
+
         hodlToken.burn(msg.sender, amount);
-        // burn yToken second for proper accounting
-        yToken.burn(msg.sender, amount);
+
+        if (!didTrigger) {
+            // burn yToken second for proper accounting
+            yToken.burn(msg.sender, amount);
+        }
 
         amount = _min(amount, stEth.balanceOf(address(this)));
         stEth.transfer(msg.sender, amount);
