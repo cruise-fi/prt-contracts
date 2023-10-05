@@ -23,13 +23,16 @@ contract Vault {
     IOracle public immutable oracle;
 
     uint256 public immutable strike;
-    bool didTrigger = false;
+    bool public didTrigger = false;
     uint256 public claimed;
+    uint256 public deployedAt;
 
     constructor(string memory name_,
                 string memory symbol_,
                 uint256 strike_,
                 address oracle_) {
+
+        deployedAt = block.timestamp;
 
         // Strike price with 8 decimals
         strike = strike_;
@@ -42,9 +45,6 @@ contract Vault {
                                   string.concat("hodl", symbol_),
                                   string.concat("Hodl ", name_));
 
-        /* IERC20(stEth).safeApprove(address(yToken), type(uint256).max); */
-        /* IERC20(stEth).safeApprove(address(hodlToken), type(uint256).max); */
-
         oracle = IOracle(oracle_);
     }
 
@@ -53,10 +53,9 @@ contract Vault {
     }
 
     function mint() external payable {
-        // sub 1 to account for stETH behavior
+        // subtract 1 to account for stETH behavior
         hodlToken.mint(msg.sender, msg.value - 1);
-
-        // mint yToken last, because its supply is used in `cumulativeYield()`
+        // mint yToken second for proper accounting
         yToken.mint(msg.sender, msg.value - 1);
 
         uint256 before = stEth.balanceOf(address(this));
@@ -66,9 +65,8 @@ contract Vault {
 
     function redeem(uint256 amount) external {
         hodlToken.burn(msg.sender, amount);
-        console.log("hodlToken burn done");
+        // burn yToken second for proper accounting
         yToken.burn(msg.sender, amount);
-        console.log("yToken burn done");
 
         amount = _min(amount, stEth.balanceOf(address(this)));
         stEth.transfer(msg.sender, amount);
@@ -82,14 +80,13 @@ contract Vault {
 
     function trigger(uint80 roundId) external {
         require(oracle.price(roundId) >= strike, "strike");
-        didTrigger = true;
         yToken.trigger();
+        didTrigger = true;  // do this in the middle for proper accounting
         hodlToken.trigger();
     }
 
     function cumulativeYield() external view returns (uint256) {
-        uint256 deposits = yToken.totalSupply();
-        uint256 delta = stEth.balanceOf(address(this)) - deposits;
+        uint256 delta = stEth.balanceOf(address(this)) - yToken.totalSupply();
         uint256 result = delta + claimed;
         return result;
     }

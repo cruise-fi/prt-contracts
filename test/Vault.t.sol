@@ -57,10 +57,6 @@ contract VaultTest is BaseTest {
 
         assertEq(0, vault.cumulativeYield());
 
-        console.log("made vault", address(vault));
-        console.log("vault.stEth()", address(vault.stEth()));
-        console.log("whale balance", whale.balance);
-
         // Give the whale some stETH
         vm.startPrank(whale);
         IStEth(vault.stEth()).submit{value: 1 ether}(address(0));
@@ -222,11 +218,7 @@ contract VaultTest is BaseTest {
 
         // Some time passes, price still < 1700, Bob redeems for stETH
         vm.startPrank(alice);
-        console.log("alice balance", vault.hodlToken().balanceOf(alice));
-        console.log("bob balance  ", vault.hodlToken().balanceOf(bob));
         vault.hodlToken().transfer(bob, 1 ether - 1);
-        console.log("alice balance", vault.hodlToken().balanceOf(alice));
-        console.log("bob balance  ", vault.hodlToken().balanceOf(bob));
         vm.stopPrank();
 
         console.log("lets redeem");
@@ -236,22 +228,48 @@ contract VaultTest is BaseTest {
             assertEq(1 ether - 1, vault.hodlToken().balanceOf(bob));
 
             uint256 before = IERC20(vault.stEth()).balanceOf(bob);
+
             vm.startPrank(bob);
-            vault.yToken().approve(address(vault.yToken()), 1 ether);
-            vault.hodlToken().approve(address(vault.hodlToken()), 1 ether);
+
             vault.redeem(0.5 ether);
+
+            assertEq(0.06 ether - 1, vault.yToken().claimable(alice));
             uint256 delta = IERC20(vault.stEth()).balanceOf(bob) - before;
 
             assertEq(0.5 ether, delta);
             assertEq(1.5 ether - 1, vault.yToken().balanceOf(bob));
             assertEq(0.5 ether - 1, vault.hodlToken().balanceOf(bob));
         }
-        
+
         vm.stopPrank();
 
-        // Chad transfers hodl1700 to Degen
-
         // Price hits 1700
+        vm.expectRevert("strike");
+        vault.trigger(0);
+
+        oracle.setPrice(1700_00000000);
+        vault.trigger(0);
+
+        // Y token should not give any new yield
+        assertEq(0.06 ether - 1, vault.yToken().claimable(alice));
+        assertEq(0.04 ether - 1, vault.yToken().claimable(bob));
+        assertEq(0.05 ether - 3, vault.yToken().claimable(chad));
+
+        assertEq(0.06 ether - 2, claimYield(alice));
+
+        assertEq(0, vault.yToken().claimable(alice));
+        assertEq(0.04 ether - 1, vault.yToken().claimable(bob));
+        assertEq(0.05 ether - 3, vault.yToken().claimable(chad));
+
+        simulateYield(0.06 ether);
+
+        assertEq(0, vault.yToken().claimable(alice));
+        assertEq(0.04 ether - 1, vault.yToken().claimable(bob));
+        assertEq(0.05 ether - 3, vault.yToken().claimable(chad));
+
+        assertEq(0, claimYield(alice));
+        assertEq(0.04 ether - 2, claimYield(bob));
+        assertEq(0.05 ether - 5, claimYield(chad));
 
         // Everyone claims yield, check that it worked correctly,
         // including yield on hodl1700

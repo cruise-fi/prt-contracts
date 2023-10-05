@@ -15,7 +15,6 @@ contract YToken is ERC20, Ownable {
 
     Vault public immutable vault;
 
-    /* uint256 public yieldPerToken = 0; */
     uint256 public cumulativeYieldAcc = 0;
     uint256 public yieldPerTokenAcc = 0;
 
@@ -35,26 +34,25 @@ contract YToken is ERC20, Ownable {
     }
 
     function trigger() external onlyOwner {
+        _checkpointYieldPerToken();
+    }
+
+    function isAccumulating() public virtual view returns (bool) {
+        return !vault.didTrigger();
     }
 
     function _checkpointYieldPerToken() internal {
-        console.log("");
-        console.log("===> CHECKPOINT");
-        console.log("");
-
-        yieldPerTokenAcc += _yieldPerToken();
-        console.log("yieldPerTokenAcc update done");
+        if (!isAccumulating()) return;
+        yieldPerTokenAcc = _yieldPerToken();
         cumulativeYieldAcc = vault.cumulativeYield();
-        console.log("cumulativeYieldAcc update done");
     }
 
     function _yieldPerToken() internal view returns (uint256) {
         if (totalSupply() == 0) return 0;
-        uint256 vaultCum = vault.cumulativeYield();
-        console.log("Sub:");
-        console.log("- vaultCum:          ", vaultCum);
-        console.log("- cumulativeYieldAcc:", cumulativeYieldAcc);
-        uint256 deltaCumulative = vaultCum - cumulativeYieldAcc;
+        bool x = isAccumulating();
+        uint256 deltaCumulative = x
+            ? vault.cumulativeYield() - cumulativeYieldAcc
+            : 0;
         uint256 incr = (deltaCumulative * vault.PRECISION_FACTOR()
                         / totalSupply());
         return yieldPerTokenAcc + incr;
@@ -62,16 +60,7 @@ contract YToken is ERC20, Ownable {
 
     function claimable(address user) public view returns (uint256) {
         UserInfo storage info = infos[user];
-        uint256 yptBase = _yieldPerToken();
-        uint256 ypt = yptBase - info.yieldPerTokenClaimed;
-
-        console.log("");
-        console.log("computing Claimable with YPT:", ypt);
-        console.log("- ypt base", yptBase);
-        console.log("- ypt info", info.yieldPerTokenClaimed);
-        console.log("- and acc ", info.accClaimable);
-        console.log("");
-
+        uint256 ypt = _yieldPerToken() - info.yieldPerTokenClaimed;
         uint256 result = (ypt * balanceOf(user) / vault.PRECISION_FACTOR()
                           + info.accClaimable);
         return result;
@@ -81,18 +70,9 @@ contract YToken is ERC20, Ownable {
         UserInfo storage info = infos[msg.sender];
         uint256 amount = claimable(msg.sender);
         if (amount == 0) return;
-
-        uint256 yptBefore = _yieldPerToken();
         vault.disburse(msg.sender, amount);
-        uint256 yptAfter = _yieldPerToken();
-
-        console.log("yptBefore", yptBefore);
-        console.log("yptAfter ", yptAfter);
-
         info.yieldPerTokenClaimed = _yieldPerToken();
         info.accClaimable = 0;
-
-        console.log("info.yieldPerTokenClaimed set to", info.yieldPerTokenClaimed);
     }
 
     function mint(address recipient, uint256 amount) external onlyOwner {
@@ -102,7 +82,6 @@ contract YToken is ERC20, Ownable {
 
     function burn(address recipient, uint256 amount) external onlyOwner {
         require(IERC20(address(this)).balanceOf(recipient) >= amount);
-        console.log("burn: checkpoint", amount);
         _checkpointYieldPerToken();
         _burn(recipient, amount);
     }
