@@ -38,13 +38,23 @@ contract YToken is ERC20, Ownable {
     }
 
     function _checkpointYieldPerToken() internal {
+        console.log("");
+        console.log("===> CHECKPOINT");
+        console.log("");
+
         yieldPerTokenAcc += _yieldPerToken();
-        cumulativeYieldAcc += vault.cumulativeYield();
+        console.log("yieldPerTokenAcc update done");
+        cumulativeYieldAcc = vault.cumulativeYield();
+        console.log("cumulativeYieldAcc update done");
     }
 
     function _yieldPerToken() internal view returns (uint256) {
         if (totalSupply() == 0) return 0;
-        uint256 deltaCumulative = vault.cumulativeYield() - cumulativeYieldAcc;
+        uint256 vaultCum = vault.cumulativeYield();
+        console.log("Sub:");
+        console.log("- vaultCum:          ", vaultCum);
+        console.log("- cumulativeYieldAcc:", cumulativeYieldAcc);
+        uint256 deltaCumulative = vaultCum - cumulativeYieldAcc;
         uint256 incr = (deltaCumulative * vault.PRECISION_FACTOR()
                         / totalSupply());
         return yieldPerTokenAcc + incr;
@@ -92,6 +102,7 @@ contract YToken is ERC20, Ownable {
 
     function burn(address recipient, uint256 amount) external onlyOwner {
         require(IERC20(address(this)).balanceOf(recipient) >= amount);
+        console.log("burn: checkpoint", amount);
         _checkpointYieldPerToken();
         _burn(recipient, amount);
     }

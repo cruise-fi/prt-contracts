@@ -66,7 +66,9 @@ contract Vault {
 
     function redeem(uint256 amount) external {
         hodlToken.burn(msg.sender, amount);
+        console.log("hodlToken burn done");
         yToken.burn(msg.sender, amount);
+        console.log("yToken burn done");
 
         amount = _min(amount, stEth.balanceOf(address(this)));
         stEth.transfer(msg.sender, amount);

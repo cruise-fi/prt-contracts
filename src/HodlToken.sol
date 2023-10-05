@@ -41,8 +41,9 @@ contract HodlToken is ERC20, Ownable {
         console.log("Bal", bal);
         require(bal >= amount);
         _burn(recipient, amount);
+        console.log("Burn done");
     }
 
-    function _transfer(address from, address to, uint256 amount) internal override {
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal override {
     }
 }

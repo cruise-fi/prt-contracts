@@ -222,15 +222,31 @@ contract VaultTest is BaseTest {
 
         // Some time passes, price still < 1700, Bob redeems for stETH
         vm.startPrank(alice);
+        console.log("alice balance", vault.hodlToken().balanceOf(alice));
+        console.log("bob balance  ", vault.hodlToken().balanceOf(bob));
+        vault.hodlToken().transfer(bob, 1 ether - 1);
+        console.log("alice balance", vault.hodlToken().balanceOf(alice));
+        console.log("bob balance  ", vault.hodlToken().balanceOf(bob));
         vm.stopPrank();
 
-        vm.startPrank(bob);
-        vault.yToken().approve(address(vault), 1 ether);
-        vault.hodlToken().approve(address(vault), 1 ether);
-        vault.redeem(1 ether);
+        console.log("lets redeem");
 
-        return;
+        {
+            assertEq(2 ether - 1, vault.yToken().balanceOf(bob));
+            assertEq(1 ether - 1, vault.hodlToken().balanceOf(bob));
 
+            uint256 before = IERC20(vault.stEth()).balanceOf(bob);
+            vm.startPrank(bob);
+            vault.yToken().approve(address(vault.yToken()), 1 ether);
+            vault.hodlToken().approve(address(vault.hodlToken()), 1 ether);
+            vault.redeem(0.5 ether);
+            uint256 delta = IERC20(vault.stEth()).balanceOf(bob) - before;
+
+            assertEq(0.5 ether, delta);
+            assertEq(1.5 ether - 1, vault.yToken().balanceOf(bob));
+            assertEq(0.5 ether - 1, vault.hodlToken().balanceOf(bob));
+        }
+        
         vm.stopPrank();
 
         // Chad transfers hodl1700 to Degen
