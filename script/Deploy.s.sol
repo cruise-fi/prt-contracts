@@ -20,7 +20,6 @@ contract DeployScript is BaseScript {
     function run() public {
         init();
 
-
         vm.startBroadcast(pk);
 
         oracle = new FakeOracle();
@@ -29,6 +28,7 @@ contract DeployScript is BaseScript {
         vault = new Vault("ETH @ 1700",
                           "1700",
                           1700_00000000,
+                          stEth,
                           address(oracle));
 
         vm.stopBroadcast();
