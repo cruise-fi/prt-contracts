@@ -33,7 +33,7 @@ contract YToken is ERC20, Ownable {
         vault = Vault(vault_);
     }
 
-    function trigger() external onlyOwner {
+    function trigger() external virtual onlyOwner {
         _checkpointYieldPerToken();
     }
 

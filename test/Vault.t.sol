@@ -261,7 +261,7 @@ contract VaultTest is BaseTest {
         assertEq(0.04 ether - 1, vault.yToken().claimable(bob));
         assertEq(0.05 ether - 3, vault.yToken().claimable(chad));
 
-        simulateYield(0.20 ether);
+        simulateYield(0.25 ether);
 
         assertEq(0, vault.yToken().claimable(alice));
         assertEq(0.04 ether - 1, vault.yToken().claimable(bob));
@@ -283,8 +283,15 @@ contract VaultTest is BaseTest {
         console.log("--");
 
         assertEq(0, vault.hodlToken().claimable(alice));
-        assertEq(0.05 ether, vault.hodlToken().claimable(bob));
-        assertEq(0.15 ether, vault.hodlToken().claimable(chad));
+
+        console.log("");
+        console.log("");
+        console.log("Check Bob");
+        assertEq(0.05 ether - 1, vault.hodlToken().claimable(bob));
+        console.log("");
+        console.log("");
+        console.log("Check Chad");
+        assertEq(0.20 ether - 1, vault.hodlToken().claimable(chad));
     }
 
     function simulateYield(uint256 amount) internal {
