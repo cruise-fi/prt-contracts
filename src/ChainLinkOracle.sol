@@ -29,8 +29,7 @@ contract ChainLinkOracle is IOracle {
 
     function timestamp(uint80 roundId_) external view returns (uint256) {
         if (roundId_ == 0) {
-            ( , , , uint256 result , ) = feed.latestRoundData();
-            return result;
+            return block.timestamp;
         } else {
             ( , , , uint256 result , ) = feed.getRoundData(roundId_);
             return result;

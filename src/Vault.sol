@@ -82,7 +82,7 @@ contract Vault {
     }
 
     function trigger(uint80 roundId) external {
-        require(oracle.timestamp(roundId) >= deployedAt, "timestamp");
+        require(roundId == 0 || oracle.timestamp(roundId) >= deployedAt, "timestamp");
         require(oracle.price(roundId) >= strike, "strike");
 
         yToken.trigger();
