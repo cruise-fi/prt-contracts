@@ -77,7 +77,6 @@ contract VaultTest is BaseTest {
 
         // Some time passes, price still < 1700, Alice claims yield on y1700
 
-
         // Send stETH to vault to simulate incremental yield
         assertEq(0, vault.cumulativeYield());
         simulateYield(0.05 ether);
@@ -137,6 +136,7 @@ contract VaultTest is BaseTest {
         assertEq(1 ether - 1, vault.yToken().balanceOf(alice));
         assertEq(0, vault.yToken().balanceOf(bob));
         assertEq(2 ether - 1, vault.yToken().balanceOf(chad));
+
         // Simulate yield, verify yield accounting
         simulateYield(0.06 ether);
         assertEq(0.14 ether, vault.cumulativeYield());

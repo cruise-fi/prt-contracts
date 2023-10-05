@@ -76,6 +76,7 @@ contract Vault {
 
     function disburse(address recipient, uint256 amount) external {
         require(msg.sender == address(yToken) || msg.sender == address(hodlToken));
+
         IERC20(stEth).safeTransfer(recipient, amount);
         claimed += amount;
     }
@@ -83,6 +84,7 @@ contract Vault {
     function trigger(uint80 roundId) external {
         require(oracle.timestamp(roundId) >= deployedAt, "timestamp");
         require(oracle.price(roundId) >= strike, "strike");
+
         yToken.trigger();
         didTrigger = true;  // do this in the middle for proper accounting
         hodlToken.trigger();
