@@ -26,4 +26,14 @@ contract ChainLinkOracle is IOracle {
             return uint256(result);
         }
     }
+
+    function timestamp(uint80 roundId) external returns (uint256) {
+        if (roundId == 0) {
+            ( , , , uint256 result , ) = feed.latestRoundData();
+            return result;
+        } else {
+            ( , , , uint256 result , ) = feed.getRoundData(roundId);
+            return result;
+        }
+    }
 }

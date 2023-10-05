@@ -13,4 +13,8 @@ contract FakeOracle is IOracle {
     function setPrice(uint256 price_) external {
         _price = price_;
     }
+
+    function timestamp(uint80 roundId) external returns (uint256) {
+        return block.timestamp;
+    }
 }
