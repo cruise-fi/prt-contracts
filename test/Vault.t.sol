@@ -63,8 +63,6 @@ contract VaultTest is BaseTest {
         vm.stopPrank();
 
         // Alice mints y1700 and hodl1700
-        console.log("alice bal", alice.balance / 1 ether);
-
         vm.startPrank(alice);
         vault.mint{value: 1 ether}();
         vm.stopPrank();
@@ -85,9 +83,6 @@ contract VaultTest is BaseTest {
         simulateYield(0.05 ether);
         assertEq(0.05 ether - 1, vault.cumulativeYield());
 
-        uint256 claimable = vault.yToken().claimable(alice);
-        uint256 cumulative = vault.cumulativeYield();
-
         vm.startPrank(alice);
         vault.yToken().claim();
         vm.stopPrank();
@@ -101,18 +96,8 @@ contract VaultTest is BaseTest {
 
         simulateYield(0.01 ether);
 
-        console.log("--");
-
-        {
-            uint256 claimableA = vault.yToken().claimable(alice);
-            uint256 claimableB = vault.yToken().claimable(bob);
-            console.log("claimableA", claimableA);
-            console.log("claimableB", claimableB);
-
-            assertEq(14999999999999998, claimableA);
-            assertEq(5000000000000000, claimableB);
-        }
-
+        assertEq(14999999999999998, vault.yToken().claimable(alice));
+        assertEq(5000000000000000, vault.yToken().claimable(bob));
 
         vm.startPrank(bob);
         vault.yToken().transfer(alice, 0.5 ether);
@@ -124,8 +109,6 @@ contract VaultTest is BaseTest {
         assertEq(5000000000000000, vault.yToken().claimable(bob));
 
         {
-            console.log("==> Alice is claiming");
-
             uint256 before = IERC20(vault.stEth()).balanceOf(alice);
             vm.startPrank(alice);
             vault.yToken().claim();
@@ -134,14 +117,10 @@ contract VaultTest is BaseTest {
             assertEq(24999999999999996, delta);
         }
 
-        console.log("==> Bob is claiming");
-
         vm.startPrank(bob);
         vault.yToken().claim();
         vm.stopPrank();
         assertEq(4999999999999999, IERC20(vault.stEth()).balanceOf(bob));
-
-        console.log("-->checking claimable");
 
         assertEq(0, vault.yToken().claimable(alice));
         assertEq(0, vault.yToken().claimable(bob));
@@ -221,8 +200,6 @@ contract VaultTest is BaseTest {
         vault.hodlToken().transfer(bob, 1 ether - 1);
         vm.stopPrank();
 
-        console.log("lets redeem");
-
         {
             assertEq(2 ether - 1, vault.yToken().balanceOf(bob));
             assertEq(1 ether - 1, vault.hodlToken().balanceOf(bob));
@@ -273,24 +250,13 @@ contract VaultTest is BaseTest {
 
         // Everyone claims yield, check that it worked correctly,
         // including yield on hodl1700
-
-        console.log("--");
-
         assertEq(0, vault.hodlToken().balanceOf(alice));
         assertEq(0.5 ether - 1, vault.hodlToken().balanceOf(bob));
         assertEq(2 ether - 1, vault.hodlToken().balanceOf(chad));
 
-        console.log("--");
-
         assertEq(0, vault.hodlToken().claimable(alice));
 
-        console.log("");
-        console.log("");
-        console.log("Check Bob");
         assertEq(0.05 ether - 1, vault.hodlToken().claimable(bob));
-        console.log("");
-        console.log("");
-        console.log("Check Chad");
         assertEq(0.20 ether - 1, vault.hodlToken().claimable(chad));
     }
 

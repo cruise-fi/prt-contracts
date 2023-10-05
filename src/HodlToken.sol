@@ -17,5 +17,4 @@ contract HodlToken is YToken {
     function isAccumulating() public override view returns (bool) {
         return vault.didTrigger();
     }
-
 }

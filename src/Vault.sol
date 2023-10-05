@@ -55,14 +55,14 @@ contract Vault {
     }
 
     function mint() external payable {
+        // TODO: rework this so that we don't need the '- 1' part
+
         // subtract 1 to account for stETH behavior
         hodlToken.mint(msg.sender, msg.value - 1);
         // mint yToken second for proper accounting
         yToken.mint(msg.sender, msg.value - 1);
 
-        uint256 before = stEth.balanceOf(address(this));
         stEth.submit{value: msg.value}(address(0));
-        uint256 delta = stEth.balanceOf(address(this)) - before;
     }
 
     function redeem(uint256 amount) external {
