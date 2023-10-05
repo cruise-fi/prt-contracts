@@ -16,10 +16,10 @@ contract Vault {
 
     uint256 public constant PRECISION_FACTOR = 1 ether;
 
-    /* IStEth public constant stEth = IStEth(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84); */
     IStEth public immutable stEth;
     YToken public immutable yToken;
     HodlToken public immutable hodlToken;
+    uint256 public deposits;
 
     IOracle public immutable oracle;
 
@@ -59,13 +59,15 @@ contract Vault {
 
     function mint() external payable {
         // TODO: rework this so that we don't need the '- 1' part
+        uint256 before = stEth.balanceOf(address(this));
+        stEth.submit{value: msg.value}(address(0));
+        uint256 delta = stEth.balanceOf(address(this)) - before;
+        deposits += delta;
 
         // subtract 1 to account for stETH behavior
-        hodlToken.mint(msg.sender, msg.value - 1);
+        hodlToken.mint(msg.sender, delta);
         // mint yToken second for proper accounting
-        yToken.mint(msg.sender, msg.value - 1);
-
-        stEth.submit{value: msg.value}(address(0));
+        yToken.mint(msg.sender, delta);
     }
 
     function redeem(uint256 amount) external {
@@ -81,6 +83,8 @@ contract Vault {
 
         amount = _min(amount, stEth.balanceOf(address(this)));
         stEth.transfer(msg.sender, amount);
+
+        deposits -= amount;
     }
 
     function disburse(address recipient, uint256 amount) external {
@@ -100,7 +104,7 @@ contract Vault {
     }
 
     function cumulativeYield() external view returns (uint256) {
-        uint256 delta = stEth.balanceOf(address(this)) - yToken.totalSupply();
+        uint256 delta = stEth.balanceOf(address(this)) - deposits;
         uint256 result = delta + claimed;
         return result;
     }

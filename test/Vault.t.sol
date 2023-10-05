@@ -261,6 +261,36 @@ contract VaultTest is BaseTest {
         assertEq(0.20 ether - 1, vault.hodlToken().claimable(chad));
     }
 
+    function testRedeem() public {
+        uint256 fork;
+        fork = vm.createFork(vm.envString("MAINNET_RPC_URL"), 18250000);
+        vm.selectFork(fork);
+        init();
+
+        FakeOracle oracle = new FakeOracle();
+        oracle.setPrice(1611_00000000);
+
+        // Create the vault, price < 1700
+        vault = new Vault("ETH @ 1700",
+                          "1700",
+                          1700_00000000,
+                          0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84,
+                          address(oracle));
+
+        assertEq(0, vault.cumulativeYield());
+
+        // Give the whale some stETH
+        vm.startPrank(whale);
+        IStEth(vault.stEth()).submit{value: 1 ether}(address(0));
+        vm.stopPrank();
+
+        // Alice mints y1700 and hodl1700
+        vm.startPrank(alice);
+        vault.mint{value: 1 ether}();
+        vault.redeem(0.5 ether);
+        vm.stopPrank();
+    }
+
     function simulateYield(uint256 amount) internal {
         vm.startPrank(whale);
         IERC20(vault.stEth()).transfer(address(vault), amount);

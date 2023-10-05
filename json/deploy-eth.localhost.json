@@ -1,6 +1,6 @@
 {
-  "address_oracle": "0x20Dc424c5fa468CbB1c702308F0cC9c14DA2825C",
-  "address_vault": "0x89ec9355b1Bcc964e576211c8B011BD709083f8d",
-  "contractName_oracle": "FakeOracle",
+  "address_oracle": "0xc8671EF024B65f744F3205C1692F2D549Ef2d32a",
+  "address_vault": "0x64919Ed4e2FF9aD53876F0712d775f7E9420Ea65",
+  "contractName_oracle": "IOracle",
   "contractName_vault": "Vault"
 }

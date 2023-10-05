@@ -1,0 +1,6 @@
+{
+  "address_oracle": "0x09a9521c67Bf068B9989e3DB12cfbEb35Df25AE0",
+  "address_vault": "0xD758DEEf222faFDA5599bAf2eb1b6947a51fcF72",
+  "contractName_oracle": "IOracle",
+  "contractName_vault": "Vault"
+}

@@ -49,7 +49,6 @@ contract YToken is ERC20, Ownable {
 
     function _yieldPerToken() internal view returns (uint256) {
         if (totalSupply() == 0) return 0;
-
         uint256 deltaCumulative = isAccumulating()
             ? vault.cumulativeYield() - cumulativeYieldAcc
             : 0;
