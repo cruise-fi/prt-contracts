@@ -25,14 +25,13 @@ contract Vault {
     uint256 public immutable strike;
     bool public didTrigger = false;
     uint256 public claimed;
-    uint256 public deployedAt;
+    uint256 public immutable deployedAt;
+    uint256 public immutable deployedRoundId;
 
     constructor(string memory name_,
                 string memory symbol_,
                 uint256 strike_,
                 address oracle_) {
-
-        deployedAt = block.timestamp;
 
         // Strike price with 8 decimals
         strike = strike_;
@@ -46,6 +45,9 @@ contract Vault {
                                   string.concat("Hodl ", name_));
 
         oracle = IOracle(oracle_);
+
+        deployedAt = block.timestamp;
+        deployedRoundId = oracle.roundId();
     }
 
     function _min(uint256 x, uint256 y) internal pure returns (uint256) {

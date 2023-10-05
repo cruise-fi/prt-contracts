@@ -36,4 +36,9 @@ contract ChainLinkOracle is IOracle {
             return result;
         }
     }
+
+    function roundId() external returns (uint80) {
+        (uint80 roundId, , , , ) = feed.latestRoundData();
+        return roundId;
+    }
 }
