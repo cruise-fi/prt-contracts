@@ -43,9 +43,13 @@ contract DeployScript is BaseScript {
 
             json = vm.serializeAddress(objName, "address_oracle", address(oracle));
             json = vm.serializeAddress(objName, "address_vault", address(vault));
+            json = vm.serializeAddress(objName, "address_yToken", address(vault.yToken()));
+            json = vm.serializeAddress(objName, "address_hodlToken", address(vault.hodlToken()));
 
             json = vm.serializeString(objName, "contractName_oracle", "IOracle");
             json = vm.serializeString(objName, "contractName_vault", "Vault");
+            json = vm.serializeString(objName, "contractName_yToken", "YToken");
+            json = vm.serializeString(objName, "contractName_hodlToken", "HodlToken");
 
             vm.writeJson(json, string.concat("./json/deploy-eth.",
                                              vm.envString("NETWORK"),

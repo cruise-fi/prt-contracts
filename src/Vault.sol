@@ -39,12 +39,12 @@ contract Vault {
         strike = strike_;
 
         yToken = new YToken(address(this),
-                            string.concat("y", symbol_),
-                            string.concat("Yield ", name_));
+                            string.concat("Yield ", name_),
+                            string.concat("y", symbol_));
 
         hodlToken = new HodlToken(address(this),
-                                  string.concat("hodl", symbol_),
-                                  string.concat("Hodl ", name_));
+                                  string.concat("PRT ", name_),
+                                  string.concat("prt", symbol_));
 
         stEth = IStEth(stEth_);
         oracle = IOracle(oracle_);

@@ -1,6 +1,10 @@
 {
-  "address_oracle": "0xc8671EF024B65f744F3205C1692F2D549Ef2d32a",
-  "address_vault": "0x64919Ed4e2FF9aD53876F0712d775f7E9420Ea65",
+  "address_hodlToken": "0x14710c00C38eea00E9CC482DC13180E0D59f8808",
+  "address_oracle": "0x49f8b60602CD591279976081Da95020C788086eE",
+  "address_vault": "0xFB1855b681F63b99bdd839de146E7278C70E2501",
+  "address_yToken": "0x6B98a69B2c6765CB0a41668ce7BD48f1cc8E855c",
+  "contractName_hodlToken": "HodlToken",
   "contractName_oracle": "IOracle",
-  "contractName_vault": "Vault"
+  "contractName_vault": "Vault",
+  "contractName_yToken": "YToken"
 }
