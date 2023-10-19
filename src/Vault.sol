@@ -58,20 +58,18 @@ contract Vault {
     }
 
     function mint() external payable {
-        // TODO: rework this so that we don't need the '- 1' part
         uint256 before = stEth.balanceOf(address(this));
         stEth.submit{value: msg.value}(address(0));
         uint256 delta = stEth.balanceOf(address(this)) - before;
         deposits += delta;
 
-        // subtract 1 to account for stETH behavior
         hodlToken.mint(msg.sender, delta);
         // mint yToken second for proper accounting
         yToken.mint(msg.sender, delta);
     }
 
     function redeem(uint256 amount) external {
-        require(IERC20(address(yToken)).balanceOf(msg.sender) >= amount);
+        require(didTrigger || IERC20(address(yToken)).balanceOf(msg.sender) >= amount);
         require(IERC20(address(hodlToken)).balanceOf(msg.sender) >= amount);
 
         hodlToken.burn(msg.sender, amount);
