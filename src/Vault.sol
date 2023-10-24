@@ -56,6 +56,8 @@ contract Vault {
     }
 
     function mint() external payable {
+        require(!didTrigger, "already triggered");
+
         uint256 before = stEth.balanceOf(address(this));
         stEth.submit{value: msg.value}(address(0));
         uint256 delta = stEth.balanceOf(address(this)) - before;

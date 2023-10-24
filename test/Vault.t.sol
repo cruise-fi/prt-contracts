@@ -266,6 +266,9 @@ contract VaultTest is BaseTest {
 
         assertEq(0.05 ether - 1, vault.hodlToken().claimable(bob));
         assertEq(0.20 ether - 1, vault.hodlToken().claimable(chad));
+
+        vm.expectRevert("already triggered");
+        vault.mint{value: 1 ether}();
     }
 
     function testRedeem() public {
