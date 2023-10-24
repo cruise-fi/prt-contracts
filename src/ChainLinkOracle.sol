@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import "forge-std/console.sol"; 
-
 import { IOracle } from "./interfaces/IOracle.sol";
 
 import { AggregatorV3Interface } from "./interfaces/chainlink/AggregatorV3Interface.sol";

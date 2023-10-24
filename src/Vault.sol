@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import "forge-std/console.sol"; 
-
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IStEth } from "./interfaces/IStEth.sol";
@@ -64,6 +62,7 @@ contract Vault {
         deposits += delta;
 
         hodlToken.mint(msg.sender, delta);
+
         // mint yToken second for proper accounting
         yToken.mint(msg.sender, delta);
     }

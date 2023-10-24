@@ -16,3 +16,8 @@ docs/
 
 # Dotenv file
 .env
+
+*.html
+*.png
+*.css
+lcov.info

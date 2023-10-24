@@ -38,6 +38,13 @@ contract VaultTest is BaseTest {
         oracle = new ChainLinkOracle(0xCfE54B5cD566aB89272946F602D76Ea879CAb4a8);
         uint256 price2 = oracle.price(0);
         assertEq(172777012306, price2);
+
+        uint80 roundId = oracle.roundId();
+        assertEq(18446744073709572285, roundId);
+
+        assertEq(172777012306, oracle.price(roundId));
+        assertEq(block.timestamp, oracle.timestamp(0));
+        assertEq(1696213283, oracle.timestamp(roundId));
     }
 
     function testVault() public {
@@ -226,7 +233,7 @@ contract VaultTest is BaseTest {
         vault.trigger(0);
 
         oracle.setPrice(1700_00000000);
-        vault.trigger(0);
+        vault.trigger(1);
 
         // Y token should not give any new yield
         assertEq(0.06 ether - 1, vault.yToken().claimable(alice));
@@ -289,6 +296,46 @@ contract VaultTest is BaseTest {
         vault.mint{value: 1 ether}();
         vault.redeem(0.5 ether);
         vm.stopPrank();
+    }
+
+    function testTrigger() public {
+        uint256 fork;
+        fork = vm.createFork(vm.envString("MAINNET_RPC_URL"), 18250000);
+        vm.selectFork(fork);
+        init();
+
+        FakeOracle oracle = new FakeOracle();
+        oracle.setPrice(1611_00000000);
+
+        // Create the vault, price < 1700
+        vault = new Vault("ETH @ 1700",
+                          "1700",
+                          1700_00000000,
+                          0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84,
+                          address(oracle));
+
+        assertEq(0, vault.cumulativeYield());
+
+        // Give the whale some stETH
+        vm.startPrank(whale);
+        IStEth(vault.stEth()).submit{value: 1 ether}(address(0));
+        vm.stopPrank();
+
+        // Alice mints y1700 and hodl1700
+        vm.startPrank(alice);
+        vault.mint{value: 1 ether}();
+        vm.stopPrank();
+
+        assertEq(1 ether - 1, vault.yToken().balanceOf(alice));
+        assertEq(1 ether - 1, vault.hodlToken().balanceOf(alice));
+        assertEq(0, address(vault).balance);
+        assertEq(1 ether - 1, IERC20(vault.stEth()).balanceOf(address(vault)));
+
+        vm.expectRevert("strike");
+        vault.trigger(0);
+
+        oracle.setPrice(1700_00000000);
+        vault.trigger(123);
     }
 
     function simulateYield(uint256 amount) internal {

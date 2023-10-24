@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import "forge-std/console.sol"; 
-
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ERC20 } from  "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -21,7 +19,6 @@ contract YToken is ERC20, Ownable {
     struct UserInfo {
         uint256 yieldPerTokenClaimed;
         uint256 accClaimable;
-        uint256 claimed;
     }
     mapping (address => UserInfo) infos;
 
