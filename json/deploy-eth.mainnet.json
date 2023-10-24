@@ -1,0 +1,10 @@
+{
+  "address_hodlToken": "0xd77D22E83411273330413FCb92A239481dAa13A6",
+  "address_oracle": "0xc9F8B0AEC73F698634567Ead0F3Ddf99f124Edd3",
+  "address_vault": "0x9102F35c862B345f7dF582A110ba0012650b905c",
+  "address_yToken": "0xDB2DF3a973d522F73E55F2d3392f9BaA091f0756",
+  "contractName_hodlToken": "HodlToken",
+  "contractName_oracle": "IOracle",
+  "contractName_vault": "Vault",
+  "contractName_yToken": "YToken"
+}
